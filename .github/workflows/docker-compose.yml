@@ -1,0 +1,28 @@
+name: Teste Docker Compose
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar o repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Subir containers
+        run: docker-compose up -d
+
+      - name: Verificar containers
+        run: docker-compose ps
+
+      - name: Derrubar containers
+        if: always()
+        run: docker-compose down
