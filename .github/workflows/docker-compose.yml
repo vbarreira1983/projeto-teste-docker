@@ -23,7 +23,7 @@ jobs:
     - name: Deploy via SSH
       run: |
         ssh -i ~/.ssh/id_ed25519 victor@192.168.0.112 << 'EOF'
-          cd ~/meu-projeto-php
+          cd ~/projeto-teste-docker
           git pull origin main
           docker compose down
           docker compose up -d --build
