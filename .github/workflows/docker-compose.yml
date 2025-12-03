@@ -1,28 +1,30 @@
-name: Teste Docker Compose
+name: Deploy PHP Remoto
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar o repositório
-        uses: actions/checkout@v4
+    - name: Checkout do código
+      uses: actions/checkout@v3
 
-      - name: Instalar Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+    - name: Configurar SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -H 192.168.0.112 >> ~/.ssh/known_hosts
 
-      - name: Subir containers
-        run: docker-compose up -d
-
-      - name: Verificar containers
-        run: docker-compose ps
-
-      - name: Derrubar containers
-        if: always()
-        run: docker-compose down
+    - name: Deploy via SSH
+      run: |
+        ssh -i ~/.ssh/id_ed25519 victor@192.168.0.112 << 'EOF'
+          cd ~/seu-repositorio
+          git pull origin main
+          docker compose down
+          docker compose up -d --build
+        EOF
